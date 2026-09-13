@@ -47,4 +47,4 @@ async function uploadTestImages( page, nonce, count ) {
 	return ids;
 }
 
-module.exports = { uploadTestImages, pngBuffer };
+module.exports = { uploadTestImages };

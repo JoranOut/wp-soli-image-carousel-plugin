@@ -23,6 +23,11 @@ foreach ( (array) ( $attributes['images'] ?? array() ) as $soli_carousel_item ) 
 }
 
 if ( empty( $soli_carousel_ids ) ) {
+	// Nothing to show visitors. Tell someone who can fix it why the block is blank.
+	$soli_carousel_post_id = get_the_ID();
+	if ( $soli_carousel_post_id && current_user_can( 'edit_post', $soli_carousel_post_id ) ) {
+		echo '<p class="soli-carousel__notice">' . esc_html__( 'Image carousel: none of the selected images exist in the media library anymore.', 'soli-image-carousel' ) . '</p>';
+	}
 	return;
 }
 
@@ -33,7 +38,7 @@ $soli_carousel_ratio         = preg_match( '#^\d+/\d+$#', (string) ( $attributes
 $soli_carousel_count         = count( $soli_carousel_ids );
 $soli_carousel_uid           = wp_unique_id( 'soli-carousel-' );
 
-$soli_carousel_classes = array( 'soli-carousel' );
+$soli_carousel_classes = array( 'soli-carousel', 'auto' === $soli_carousel_ratio ? 'is-auto-height' : 'has-ratio' );
 if ( $soli_carousel_show_thumbs && $soli_carousel_count > 1 ) {
 	$soli_carousel_classes[] = 'has-thumbnails';
 }
@@ -44,7 +49,7 @@ $soli_carousel_wrapper = get_block_wrapper_attributes(
 		'id'               => $soli_carousel_uid,
 		'data-count'       => $soli_carousel_count,
 		'role'             => 'region',
-		'aria-roledescription' => 'carousel',
+		'aria-roledescription' => __( 'carousel', 'soli-image-carousel' ),
 		'aria-label'       => __( 'Image carousel', 'soli-image-carousel' ),
 		'style'            => 'auto' === $soli_carousel_ratio ? '' : '--soli-carousel-ratio:' . $soli_carousel_ratio . ';',
 	)
@@ -61,7 +66,7 @@ $soli_carousel_wrapper = get_block_wrapper_attributes(
 				<figure
 					class="soli-carousel__slide<?php echo 0 === $soli_carousel_i ? ' is-active' : ''; ?>"
 					role="group"
-					aria-roledescription="slide"
+					aria-roledescription="<?php esc_attr_e( 'slide', 'soli-image-carousel' ); ?>"
 					aria-label="<?php echo esc_attr( sprintf( /* translators: 1: slide number, 2: total slides */ __( '%1$d of %2$d', 'soli-image-carousel' ), $soli_carousel_i + 1, $soli_carousel_count ) ); ?>"
 					data-index="<?php echo esc_attr( $soli_carousel_i ); ?>"
 					data-full="<?php echo esc_url( $soli_carousel_full ); ?>"
@@ -99,7 +104,8 @@ $soli_carousel_wrapper = get_block_wrapper_attributes(
 		<div class="soli-carousel__toolbar">
 			<span class="soli-carousel__counter" aria-hidden="true"><span data-role="current">1</span>/<?php echo esc_html( $soli_carousel_count ); ?></span>
 			<?php if ( $soli_carousel_show_download ) : ?>
-				<a class="soli-carousel__button soli-carousel__download" data-action="download" href="<?php echo esc_url( wp_get_attachment_image_url( $soli_carousel_ids[0], 'full' ) ); ?>" download aria-label="<?php esc_attr_e( 'Download image', 'soli-image-carousel' ); ?>" title="<?php esc_attr_e( 'Download image', 'soli-image-carousel' ); ?>">
+				<?php $soli_carousel_first_full = wp_get_attachment_image_url( $soli_carousel_ids[0], 'full' ); ?>
+				<a class="soli-carousel__button soli-carousel__download" data-action="download" href="<?php echo esc_url( (string) $soli_carousel_first_full ); ?>"<?php echo $soli_carousel_first_full ? '' : ' hidden'; ?> download aria-label="<?php esc_attr_e( 'Download image', 'soli-image-carousel' ); ?>" title="<?php esc_attr_e( 'Download image', 'soli-image-carousel' ); ?>">
 					<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 4v12m0 0l-5-5m5 5l5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
 				</a>
 			<?php endif; ?>
@@ -110,18 +116,18 @@ $soli_carousel_wrapper = get_block_wrapper_attributes(
 		</div>
 
 		<?php if ( $soli_carousel_count > 1 ) : ?>
-			<div class="soli-carousel__progress" role="tablist" aria-label="<?php esc_attr_e( 'Choose image', 'soli-image-carousel' ); ?>">
+			<div class="soli-carousel__progress" role="group" aria-label="<?php esc_attr_e( 'Choose image', 'soli-image-carousel' ); ?>">
 				<?php foreach ( $soli_carousel_ids as $soli_carousel_i => $soli_carousel_id ) : ?>
-					<button type="button" role="tab" class="soli-carousel__dot<?php echo 0 === $soli_carousel_i ? ' is-active' : ''; ?>" data-action="goto" data-index="<?php echo esc_attr( $soli_carousel_i ); ?>" aria-selected="<?php echo 0 === $soli_carousel_i ? 'true' : 'false'; ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %d: slide number */ __( 'Go to image %d', 'soli-image-carousel' ), $soli_carousel_i + 1 ) ); ?>"></button>
+					<button type="button" class="soli-carousel__dot<?php echo 0 === $soli_carousel_i ? ' is-active' : ''; ?>" data-action="goto" data-index="<?php echo esc_attr( $soli_carousel_i ); ?>"<?php echo 0 === $soli_carousel_i ? ' aria-current="true"' : ' tabindex="-1"'; ?> aria-label="<?php echo esc_attr( sprintf( /* translators: %d: slide number */ __( 'Go to image %d', 'soli-image-carousel' ), $soli_carousel_i + 1 ) ); ?>"></button>
 				<?php endforeach; ?>
 			</div>
 		<?php endif; ?>
 	</div>
 
 	<?php if ( $soli_carousel_show_thumbs && $soli_carousel_count > 1 ) : ?>
-		<div class="soli-carousel__thumbs" role="tablist" aria-label="<?php esc_attr_e( 'Thumbnails', 'soli-image-carousel' ); ?>">
+		<div class="soli-carousel__thumbs" role="group" aria-label="<?php esc_attr_e( 'Thumbnails', 'soli-image-carousel' ); ?>">
 			<?php foreach ( $soli_carousel_ids as $soli_carousel_i => $soli_carousel_id ) : ?>
-				<button type="button" role="tab" class="soli-carousel__thumb<?php echo 0 === $soli_carousel_i ? ' is-active' : ''; ?>" data-action="goto" data-index="<?php echo esc_attr( $soli_carousel_i ); ?>" aria-selected="<?php echo 0 === $soli_carousel_i ? 'true' : 'false'; ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %d: slide number */ __( 'Go to image %d', 'soli-image-carousel' ), $soli_carousel_i + 1 ) ); ?>">
+				<button type="button" class="soli-carousel__thumb<?php echo 0 === $soli_carousel_i ? ' is-active' : ''; ?>" data-action="goto" data-index="<?php echo esc_attr( $soli_carousel_i ); ?>"<?php echo 0 === $soli_carousel_i ? ' aria-current="true"' : ' tabindex="-1"'; ?> aria-label="<?php echo esc_attr( sprintf( /* translators: %d: slide number */ __( 'Go to image %d', 'soli-image-carousel' ), $soli_carousel_i + 1 ) ); ?>">
 					<?php echo wp_get_attachment_image( $soli_carousel_id, 'thumbnail', false, array( 'loading' => 'lazy' ) ); ?>
 				</button>
 			<?php endforeach; ?>

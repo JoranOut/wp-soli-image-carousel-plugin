@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-13T21:20:08+00:00\n"
+"POT-Creation-Date: 2026-09-13T21:41:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: soli-image-carousel\n"
@@ -29,8 +29,16 @@ msgstr ""
 msgid "Joran Out"
 msgstr ""
 
+#: build/image-carousel/render.php:47
+msgid "carousel"
+msgstr ""
+
 #: build/image-carousel/render.php:48
 msgid "Image carousel"
+msgstr ""
+
+#: build/image-carousel/render.php:64
+msgid "slide"
 msgstr ""
 
 #. translators: 1: slide number, 2: total slides
@@ -47,30 +55,30 @@ msgstr ""
 msgid "Next image"
 msgstr ""
 
-#: build/image-carousel/render.php:102
+#: build/image-carousel/render.php:103
 msgid "Download image"
 msgstr ""
 
-#: build/image-carousel/render.php:106
+#: build/image-carousel/render.php:107
 msgid "Fullscreen"
 msgstr ""
 
-#: build/image-carousel/render.php:106
+#: build/image-carousel/render.php:107
 msgid "Exit fullscreen"
 msgstr ""
 
-#: build/image-carousel/render.php:113
+#: build/image-carousel/render.php:114
 msgid "Choose image"
 msgstr ""
 
 #. translators: %d: slide number
-#: build/image-carousel/render.php:115
-#: build/image-carousel/render.php:124
+#: build/image-carousel/render.php:116
+#: build/image-carousel/render.php:125
 #, php-format
 msgid "Go to image %d"
 msgstr ""
 
-#: build/image-carousel/render.php:122
+#: build/image-carousel/render.php:123
 msgid "Thumbnails"
 msgstr ""
 
@@ -79,7 +87,7 @@ msgid "Soli Image Carousel: build/blocks-manifest.php is missing. Run \"npm run 
 msgstr ""
 
 #: build/image-carousel/index.js:1
-#: build/image-carousel/index.js:3
+#: build/image-carousel/index.js:4
 msgid "Select images"
 msgstr ""
 
@@ -116,6 +124,10 @@ msgid "Select one or more images from the media library."
 msgstr ""
 
 #: build/image-carousel/index.js:1
+msgid "Image no longer exists"
+msgstr ""
+
+#: build/image-carousel/index.js:1
 msgid "Move left"
 msgstr ""
 
@@ -132,8 +144,18 @@ msgstr ""
 #. translators: %d: number of images
 #: build/image-carousel/index.js:3
 #, js-format
-msgid "%d images in carousel"
-msgstr ""
+msgid "%d image in carousel"
+msgid_plural "%d images in carousel"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of images that no longer exist in the media library
+#: build/image-carousel/index.js:4
+#, js-format
+msgid "(%d missing)"
+msgid_plural "(%d missing)"
+msgstr[0] ""
+msgstr[1] ""
 
 #: build/image-carousel/block.json
 msgctxt "block title"
