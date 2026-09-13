@@ -1,0 +1,286 @@
+.soli-carousel {
+	--soli-carousel-bg: #111;
+	--soli-carousel-fg: #fff;
+	--soli-carousel-accent: #fff;
+	--soli-carousel-radius: 8px;
+	position: relative;
+	outline: none;
+
+	&:focus-visible {
+		outline: 2px solid currentColor;
+		outline-offset: 4px;
+	}
+
+	&__stage {
+		position: relative;
+		background: var(--soli-carousel-bg);
+		border-radius: var(--soli-carousel-radius);
+		overflow: hidden;
+	}
+
+	&__track {
+		position: relative;
+		aspect-ratio: var(--soli-carousel-ratio, auto);
+	}
+
+	// When no ratio is set, the active slide sizes the track.
+	&:not([style*="--soli-carousel-ratio"]) &__track {
+		display: grid;
+	}
+	&:not([style*="--soli-carousel-ratio"]) &__slide {
+		position: relative;
+		grid-area: 1 / 1;
+	}
+
+	&__slide {
+		position: absolute;
+		inset: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity 300ms ease, visibility 0s linear 300ms;
+
+		&.is-active {
+			opacity: 1;
+			visibility: visible;
+			transition-delay: 0s;
+			z-index: 1;
+		}
+	}
+
+	&__image {
+		flex: 1 1 auto;
+		width: 100%;
+		height: 100%;
+		min-height: 0;
+		object-fit: contain;
+		display: block;
+	}
+
+	&__caption {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		margin: 0;
+		padding: 2.5rem 1rem 2.25rem;
+		color: var(--soli-carousel-fg);
+		font-size: 0.875rem;
+		text-align: center;
+		background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+	}
+
+	&__nav,
+	&__button {
+		appearance: none;
+		border: 0;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--soli-carousel-fg);
+		background: rgba(0, 0, 0, 0.45);
+		border-radius: 999px;
+		transition: background 150ms;
+		text-decoration: none;
+
+		&:hover,
+		&:focus-visible {
+			background: rgba(0, 0, 0, 0.75);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--soli-carousel-accent);
+			outline-offset: 2px;
+		}
+
+		svg {
+			display: block;
+		}
+	}
+
+	&__nav {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 44px;
+		height: 44px;
+		z-index: 2;
+
+		&--prev {
+			left: 0.75rem;
+		}
+		&--next {
+			right: 0.75rem;
+		}
+	}
+
+	&__toolbar {
+		position: absolute;
+		top: 0.75rem;
+		right: 0.75rem;
+		z-index: 2;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	&__counter {
+		color: var(--soli-carousel-fg);
+		background: rgba(0, 0, 0, 0.45);
+		border-radius: 999px;
+		padding: 0.25rem 0.6rem;
+		font-size: 0.8rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__button {
+		width: 36px;
+		height: 36px;
+	}
+
+	&__icon-exit {
+		display: none !important;
+	}
+	&.is-fullscreen &__icon-enter {
+		display: none !important;
+	}
+	&.is-fullscreen &__icon-exit {
+		display: block !important;
+	}
+
+	&__progress {
+		position: absolute;
+		left: 50%;
+		bottom: 0.75rem;
+		transform: translateX(-50%);
+		z-index: 2;
+		display: flex;
+		gap: 6px;
+		padding: 0.35rem 0.6rem;
+		border-radius: 999px;
+		background: rgba(0, 0, 0, 0.35);
+		max-width: calc(100% - 2rem);
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	&__dot {
+		appearance: none;
+		border: 0;
+		padding: 0;
+		width: 8px;
+		height: 8px;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.45);
+		cursor: pointer;
+		transition: transform 150ms, background 150ms;
+
+		&.is-active {
+			background: var(--soli-carousel-accent);
+			transform: scale(1.35);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--soli-carousel-accent);
+			outline-offset: 2px;
+		}
+	}
+
+	&__thumbs {
+		display: flex;
+		gap: 6px;
+		margin-top: 8px;
+		overflow-x: auto;
+		scrollbar-width: thin;
+		scroll-snap-type: x proximity;
+		padding-bottom: 4px;
+	}
+
+	&__thumb {
+		appearance: none;
+		flex: 0 0 auto;
+		width: 72px;
+		height: 54px;
+		padding: 0;
+		border: 2px solid transparent;
+		border-radius: 4px;
+		overflow: hidden;
+		background: #eee;
+		cursor: pointer;
+		opacity: 0.6;
+		scroll-snap-align: center;
+		transition: opacity 150ms, border-color 150ms;
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
+		}
+
+		&.is-active,
+		&:hover {
+			opacity: 1;
+		}
+		&.is-active {
+			border-color: currentColor;
+		}
+		&:focus-visible {
+			outline: 2px solid currentColor;
+			outline-offset: 1px;
+		}
+	}
+
+	// Fullscreen, both the native API (:fullscreen) and the CSS fallback.
+	&.is-fullscreen,
+	&:fullscreen {
+		position: fixed;
+		inset: 0;
+		z-index: 99999;
+		width: 100vw;
+		height: 100vh;
+		max-width: none;
+		margin: 0;
+		padding: 0;
+		background: var(--soli-carousel-bg);
+		display: flex;
+		flex-direction: column;
+		--soli-carousel-radius: 0;
+
+		.soli-carousel__stage {
+			flex: 1 1 auto;
+			min-height: 0;
+			display: flex;
+			flex-direction: column;
+		}
+		.soli-carousel__track {
+			flex: 1 1 auto;
+			min-height: 0;
+			aspect-ratio: auto;
+			display: block;
+		}
+		.soli-carousel__slide {
+			position: absolute;
+		}
+		.soli-carousel__thumbs {
+			margin: 0;
+			padding: 8px;
+			justify-content: center;
+			background: rgba(0, 0, 0, 0.6);
+			color: #fff;
+		}
+	}
+}
+
+html.soli-carousel-fullscreen-open {
+	overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.soli-carousel__slide {
+		transition: none;
+	}
+}

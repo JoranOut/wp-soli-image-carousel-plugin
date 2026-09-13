@@ -1,0 +1,171 @@
+# Copyright (C) 2026 Joran Out
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Soli Image Carousel Plugin 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-soli-image-carousel-plugin\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-13T21:20:08+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: soli-image-carousel\n"
+
+#. Plugin Name of the plugin
+#: soli-image-carousel-plugin.php
+msgid "Soli Image Carousel Plugin"
+msgstr ""
+
+#. Description of the plugin
+#: soli-image-carousel-plugin.php
+msgid "Gutenberg block that turns a selection from the media library into an image carousel with progress indicators, thumbnails, fullscreen and download."
+msgstr ""
+
+#. Author of the plugin
+#: soli-image-carousel-plugin.php
+msgid "Joran Out"
+msgstr ""
+
+#: build/image-carousel/render.php:48
+msgid "Image carousel"
+msgstr ""
+
+#. translators: 1: slide number, 2: total slides
+#: build/image-carousel/render.php:65
+#, php-format
+msgid "%1$d of %2$d"
+msgstr ""
+
+#: build/image-carousel/render.php:91
+msgid "Previous image"
+msgstr ""
+
+#: build/image-carousel/render.php:94
+msgid "Next image"
+msgstr ""
+
+#: build/image-carousel/render.php:102
+msgid "Download image"
+msgstr ""
+
+#: build/image-carousel/render.php:106
+msgid "Fullscreen"
+msgstr ""
+
+#: build/image-carousel/render.php:106
+msgid "Exit fullscreen"
+msgstr ""
+
+#: build/image-carousel/render.php:113
+msgid "Choose image"
+msgstr ""
+
+#. translators: %d: slide number
+#: build/image-carousel/render.php:115
+#: build/image-carousel/render.php:124
+#, php-format
+msgid "Go to image %d"
+msgstr ""
+
+#: build/image-carousel/render.php:122
+msgid "Thumbnails"
+msgstr ""
+
+#: inc/blocks.php:22
+msgid "Soli Image Carousel: build/blocks-manifest.php is missing. Run \"npm run build\" in the plugin directory."
+msgstr ""
+
+#: build/image-carousel/index.js:1
+#: build/image-carousel/index.js:3
+msgid "Select images"
+msgstr ""
+
+#: build/image-carousel/index.js:1
+msgid "Carousel settings"
+msgstr ""
+
+#: build/image-carousel/index.js:1
+msgid "Aspect ratio"
+msgstr ""
+
+#: build/image-carousel/index.js:1
+msgid "Auto (image height)"
+msgstr ""
+
+#: build/image-carousel/index.js:1
+msgid "Show thumbnails"
+msgstr ""
+
+#: build/image-carousel/index.js:1
+msgid "Show captions"
+msgstr ""
+
+#: build/image-carousel/index.js:1
+msgid "Show download button"
+msgstr ""
+
+#: build/image-carousel/index.js:1
+msgid "Soli Image Carousel"
+msgstr ""
+
+#: build/image-carousel/index.js:1
+msgid "Select one or more images from the media library."
+msgstr ""
+
+#: build/image-carousel/index.js:1
+msgid "Move left"
+msgstr ""
+
+#: build/image-carousel/index.js:1
+msgid "Move right"
+msgstr ""
+
+#. translators: %d: position of the image in the carousel
+#: build/image-carousel/index.js:2
+#, js-format
+msgid "Remove image %d from carousel"
+msgstr ""
+
+#. translators: %d: number of images
+#: build/image-carousel/index.js:3
+#, js-format
+msgid "%d images in carousel"
+msgstr ""
+
+#: build/image-carousel/block.json
+msgctxt "block title"
+msgid "Soli Image Carousel"
+msgstr ""
+
+#: build/image-carousel/block.json
+msgctxt "block description"
+msgid "A carousel of images from the media library, with progress indicators, thumbnails, fullscreen and download."
+msgstr ""
+
+#: build/image-carousel/block.json
+msgctxt "block keyword"
+msgid "carousel"
+msgstr ""
+
+#: build/image-carousel/block.json
+msgctxt "block keyword"
+msgid "slider"
+msgstr ""
+
+#: build/image-carousel/block.json
+msgctxt "block keyword"
+msgid "gallery"
+msgstr ""
+
+#: build/image-carousel/block.json
+msgctxt "block keyword"
+msgid "afbeeldingen"
+msgstr ""
+
+#: build/image-carousel/block.json
+msgctxt "block keyword"
+msgid "foto"
+msgstr ""

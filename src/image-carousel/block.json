@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "soli/image-carousel",
+	"version": "1.0.0",
+	"title": "Soli Image Carousel",
+	"category": "media",
+	"icon": "images-alt2",
+	"description": "A carousel of images from the media library, with progress indicators, thumbnails, fullscreen and download.",
+	"keywords": [ "carousel", "slider", "gallery", "afbeeldingen", "foto" ],
+	"example": {
+		"attributes": { "images": [] }
+	},
+	"attributes": {
+		"images": {
+			"type": "array",
+			"default": [],
+			"items": { "type": "object" }
+		},
+		"showThumbnails": { "type": "boolean", "default": true },
+		"showDownload": { "type": "boolean", "default": true },
+		"showCaptions": { "type": "boolean", "default": true },
+		"aspectRatio": { "type": "string", "default": "16/9" }
+	},
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"spacing": { "margin": true }
+	},
+	"textdomain": "soli-image-carousel",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"viewScript": "file:./view.js"
+}
