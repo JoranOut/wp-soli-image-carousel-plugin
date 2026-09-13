@@ -32,8 +32,11 @@ function canvas( page ) {
 
 async function blockLocator( page ) {
 	const frame = page.locator( 'iframe[name="editor-canvas"]' );
-	await page.waitForTimeout( 250 );
-	if ( ( await frame.count() ) > 0 ) {
+	const iframed = await frame
+		.waitFor( { state: 'attached', timeout: 2000 } )
+		.then( () => true )
+		.catch( () => false );
+	if ( iframed ) {
 		return canvas( page ).locator( `[data-type="${ BLOCK_NAME }"]` );
 	}
 	return page.locator( `[data-type="${ BLOCK_NAME }"]` );
@@ -88,23 +91,47 @@ test.describe( 'Image carousel in the editor', () => {
 		}
 		await expect( modal.locator( '.attachments .attachment' ).first() ).toBeVisible();
 
-		// Pick every uploaded image with shift-click semantics (toggle selection).
+		// Ctrl/Cmd-click toggles individual attachments (Shift would select a
+		// range, which only works while the uploads happen to be adjacent).
 		for ( const id of imageIds ) {
 			const tile = modal.locator( `.attachments-browser .attachments .attachment[data-id="${ id }"]` ).first();
 			await tile.scrollIntoViewIfNeeded();
-			await tile.click( { modifiers: [ 'Shift' ] } );
+			await tile.click( { modifiers: [ 'ControlOrMeta' ] } );
 		}
-		// Gallery frame: proceed to "Create a new gallery", then insert.
-		const create = modal.getByRole( 'button', { name: /Create a new gallery/i } );
-		if ( await create.isVisible().catch( () => false ) ) {
-			await create.click();
-		}
-		await modal.getByRole( 'button', { name: /Insert gallery|Update gallery|Select/i } ).first().click();
+		const selected = await page.evaluate( () => window.wp.media.frame.state().get( 'selection' ).length );
+		expect( selected ).toBe( imageIds.length );
+
+		// Gallery frame: "Create a new gallery" leads to the edit step, which
+		// has the insert button.
+		await modal.getByRole( 'button', { name: 'Create a new gallery' } ).click();
+		await modal.getByRole( 'button', { name: 'Insert gallery' } ).click();
 		await expect( modal ).toBeHidden();
 
 		const items = block.locator( '.soli-carousel-editor__item' );
 		await expect( items ).toHaveCount( imageIds.length );
 		await expect( block ).toContainText( `${ imageIds.length } images in carousel` );
+	} );
+
+	test( 'marks an image that no longer exists in the media library', async ( { page } ) => {
+		const nonce = await loginAndGetNonce( page );
+		const [ doomed ] = await uploadTestImages( page, nonce, 1 );
+		const del = await authenticatedRest( page, nonce, {
+			route: `/wp/v2/media/${ doomed }`,
+			method: 'DELETE',
+			body: { force: true },
+		} );
+		expect( del.status ).toBe( 200 );
+
+		await openNewEditor( page );
+		const block = await insertCarousel( page, {
+			images: [ imageIds[ 0 ], doomed ].map( ( id ) => ( { id, url: '', alt: '' } ) ),
+		} );
+		const items = block.locator( '.soli-carousel-editor__item' );
+		await expect( items ).toHaveCount( 2 );
+		await expect( items.nth( 1 ) ).toHaveClass( /is-missing/ );
+		await expect( items.nth( 1 ) ).toContainText( 'Image no longer exists' );
+		await expect( items.nth( 0 ) ).not.toHaveClass( /is-missing/ );
+		await expect( block ).toContainText( '1 image in carousel (1 missing)' );
 	} );
 
 	test( 'removes an image from the grid', async ( { page } ) => {

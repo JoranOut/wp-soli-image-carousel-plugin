@@ -2,7 +2,6 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "soli/image-carousel",
-	"version": "1.0.0",
 	"title": "Soli Image Carousel",
 	"category": "media",
 	"icon": "images-alt2",

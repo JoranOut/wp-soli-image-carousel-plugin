@@ -6,6 +6,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-soli-image-carousel-plugin\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -29,9 +30,17 @@ msgstr "Gutenberg block that turns a selection from the media library into an im
 msgid "Joran Out"
 msgstr "Joran Out"
 
+#: build/image-carousel/render.php:47
+msgid "carousel"
+msgstr "carousel"
+
 #: build/image-carousel/render.php:48
 msgid "Image carousel"
 msgstr "Image carousel"
+
+#: build/image-carousel/render.php:64
+msgid "slide"
+msgstr "slide"
 
 #. translators: 1: slide number, 2: total slides
 #: build/image-carousel/render.php:65
@@ -47,30 +56,30 @@ msgstr "Previous image"
 msgid "Next image"
 msgstr "Next image"
 
-#: build/image-carousel/render.php:102
+#: build/image-carousel/render.php:103
 msgid "Download image"
 msgstr "Download image"
 
-#: build/image-carousel/render.php:106
+#: build/image-carousel/render.php:107
 msgid "Fullscreen"
 msgstr "Fullscreen"
 
-#: build/image-carousel/render.php:106
+#: build/image-carousel/render.php:107
 msgid "Exit fullscreen"
 msgstr "Exit fullscreen"
 
-#: build/image-carousel/render.php:113
+#: build/image-carousel/render.php:114
 msgid "Choose image"
 msgstr "Choose image"
 
 #. translators: %d: slide number
-#: build/image-carousel/render.php:115
-#: build/image-carousel/render.php:124
+#: build/image-carousel/render.php:116
+#: build/image-carousel/render.php:125
 #, php-format
 msgid "Go to image %d"
 msgstr "Go to image %d"
 
-#: build/image-carousel/render.php:122
+#: build/image-carousel/render.php:123
 msgid "Thumbnails"
 msgstr "Thumbnails"
 
@@ -79,7 +88,7 @@ msgid "Soli Image Carousel: build/blocks-manifest.php is missing. Run \"npm run 
 msgstr "Soli Image Carousel: build/blocks-manifest.php is missing. Run \"npm run build\" in the plugin directory."
 
 #: build/image-carousel/index.js:1
-#: build/image-carousel/index.js:3
+#: build/image-carousel/index.js:4
 msgid "Select images"
 msgstr "Select images"
 
@@ -116,6 +125,10 @@ msgid "Select one or more images from the media library."
 msgstr "Select one or more images from the media library."
 
 #: build/image-carousel/index.js:1
+msgid "Image no longer exists"
+msgstr "Image no longer exists"
+
+#: build/image-carousel/index.js:1
 msgid "Move left"
 msgstr "Move left"
 
@@ -132,8 +145,18 @@ msgstr "Remove image %d from carousel"
 #. translators: %d: number of images
 #: build/image-carousel/index.js:3
 #, js-format
-msgid "%d images in carousel"
-msgstr "%d images in carousel"
+msgid "%d image in carousel"
+msgid_plural "%d images in carousel"
+msgstr[0] "%d image in carousel"
+msgstr[1] "%d images in carousel"
+
+#. translators: %d: number of images that no longer exist in the media library
+#: build/image-carousel/index.js:4
+#, js-format
+msgid "(%d missing)"
+msgid_plural "(%d missing)"
+msgstr[0] "(%d missing)"
+msgstr[1] "(%d missing)"
 
 #: build/image-carousel/block.json
 msgctxt "block title"

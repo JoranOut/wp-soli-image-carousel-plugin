@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import {
 	useBlockProps,
 	MediaUpload,
@@ -42,19 +42,33 @@ export default function Edit( { attributes, setAttributes } ) {
 	const ids = images.map( ( img ) => img.id );
 
 	// Preview URLs are stored on selection, but content created outside the
-	// editor (REST, migrations) may carry ids only. Resolve those from the
-	// media library so the grid never shows an empty tile.
-	const mediaById = useSelect(
+	// editor (REST, migrations) may carry ids only, and a file may have been
+	// deleted since. Resolve every id from the media library so a tile shows
+	// the current image, or a clear "missing" state when there is none.
+	// The REST API caps per_page at 100, so ids are requested in chunks.
+	const { mediaById, hasResolved } = useSelect(
 		( select ) => {
 			if ( ! ids.length ) {
-				return {};
+				return { mediaById: {}, hasResolved: true };
 			}
-			const records = select( coreStore ).getEntityRecords( 'postType', 'attachment', {
-				include: ids,
-				per_page: ids.length,
-				context: 'view',
-			} );
-			return Object.fromEntries( ( records || [] ).map( ( r ) => [ r.id, r ] ) );
+			const { getEntityRecords, hasFinishedResolution } = select( coreStore );
+			const byId = {};
+			let resolved = true;
+			for ( let i = 0; i < ids.length; i += 100 ) {
+				const query = {
+					include: ids.slice( i, i + 100 ),
+					per_page: 100,
+					context: 'view',
+				};
+				const records = getEntityRecords( 'postType', 'attachment', query );
+				( records || [] ).forEach( ( r ) => {
+					byId[ r.id ] = r;
+				} );
+				resolved =
+					resolved &&
+					hasFinishedResolution( 'getEntityRecords', [ 'postType', 'attachment', query ] );
+			}
+			return { mediaById: byId, hasResolved: resolved };
 		},
 		[ ids.join( ',' ) ]
 	);
@@ -67,6 +81,9 @@ export default function Edit( { attributes, setAttributes } ) {
 			image.url
 		);
 	};
+	const isMissing = ( image ) => hasResolved && ! mediaById[ image.id ];
+	const availableCount = images.filter( ( image ) => ! isMissing( image ) ).length;
+	const missingCount = images.length - availableCount;
 
 	const onSelect = ( selection ) => {
 		setAttributes( { images: selection.map( toImage ) } );
@@ -178,8 +195,20 @@ export default function Edit( { attributes, setAttributes } ) {
 					<>
 						<ul className="soli-carousel-editor__grid">
 							{ images.map( ( image, index ) => (
-								<li key={ image.id } className="soli-carousel-editor__item">
-									<img src={ previewUrl( image ) } alt={ image.alt } />
+								<li
+									key={ image.id }
+									className={
+										'soli-carousel-editor__item' +
+										( isMissing( image ) ? ' is-missing' : '' )
+									}
+								>
+									{ isMissing( image ) ? (
+										<span className="soli-carousel-editor__missing">
+											{ __( 'Image no longer exists', 'soli-image-carousel' ) }
+										</span>
+									) : (
+										<img src={ previewUrl( image ) } alt={ image.alt } />
+									) }
 									<span className="soli-carousel-editor__index">
 										{ index + 1 }
 									</span>
@@ -218,9 +247,26 @@ export default function Edit( { attributes, setAttributes } ) {
 							<span>
 								{ sprintf(
 									/* translators: %d: number of images */
-									__( '%d images in carousel', 'soli-image-carousel' ),
-									images.length
+									_n(
+										'%d image in carousel',
+										'%d images in carousel',
+										availableCount,
+										'soli-image-carousel'
+									),
+									availableCount
 								) }
+								{ missingCount > 0 &&
+									' ' +
+										sprintf(
+											/* translators: %d: number of images that no longer exist in the media library */
+											_n(
+												'(%d missing)',
+												'(%d missing)',
+												missingCount,
+												'soli-image-carousel'
+											),
+											missingCount
+										) }
 							</span>
 							<MediaUploadCheck>
 								<MediaUpload

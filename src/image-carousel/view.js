@@ -7,6 +7,13 @@
  */
 
 const SWIPE_THRESHOLD = 40;
+const HTML_OPEN_CLASS = 'soli-carousel-fullscreen-open';
+
+/**
+ * Only one carousel can be fullscreen at a time, so the state that lives on
+ * <html> (scroll lock) is owned here rather than by each instance.
+ */
+let fullscreenRoot = null;
 
 function setup( root ) {
 	if ( root.dataset.soliCarouselReady ) {
@@ -17,6 +24,7 @@ function setup( root ) {
 	const slides = Array.from( root.querySelectorAll( '.soli-carousel__slide' ) );
 	const dots = Array.from( root.querySelectorAll( '.soli-carousel__dot' ) );
 	const thumbs = Array.from( root.querySelectorAll( '.soli-carousel__thumb' ) );
+	const tabs = [ ...dots, ...thumbs ];
 	const counter = root.querySelector( '[data-role="current"]' );
 	const download = root.querySelector( '[data-action="download"]' );
 	const fullscreenButton = root.querySelector( '[data-action="fullscreen"]' );
@@ -24,21 +32,38 @@ function setup( root ) {
 	const count = slides.length;
 	let current = 0;
 
+	// Fallback fullscreen moves the element to <body> so a transformed or
+	// contained ancestor cannot clip it; remember where to put it back.
+	let placeholder = null;
+
 	const wrap = ( index ) => ( ( index % count ) + count ) % count;
 
 	const show = ( index ) => {
+		const focusedTab = tabs.find( ( tab ) => tab === document.activeElement );
 		current = wrap( index );
 		slides.forEach( ( slide, i ) => {
 			const active = i === current;
 			slide.classList.toggle( 'is-active', active );
 			slide.setAttribute( 'aria-hidden', active ? 'false' : 'true' );
 		} );
-		[ ...dots, ...thumbs ].forEach( ( tab ) => {
+		tabs.forEach( ( tab ) => {
 			const active = Number( tab.dataset.index ) === current;
 			tab.classList.toggle( 'is-active', active );
-			tab.setAttribute( 'aria-selected', active ? 'true' : 'false' );
+			if ( active ) {
+				tab.setAttribute( 'aria-current', 'true' );
+			} else {
+				tab.removeAttribute( 'aria-current' );
+			}
 			tab.tabIndex = active ? 0 : -1;
 		} );
+		// Roving tabindex: keep focus on a focusable tab in the same list.
+		if ( focusedTab ) {
+			const list = dots.includes( focusedTab ) ? dots : thumbs;
+			const next = list[ current ];
+			if ( next ) {
+				next.focus( { preventScroll: true } );
+			}
+		}
 		const activeThumb = thumbs[ current ];
 		if ( activeThumb && activeThumb.scrollIntoView ) {
 			activeThumb.scrollIntoView( { block: 'nearest', inline: 'center', behavior: 'smooth' } );
@@ -48,8 +73,14 @@ function setup( root ) {
 		}
 		if ( download ) {
 			const slide = slides[ current ];
-			download.href = slide.dataset.full || download.href;
-			download.setAttribute( 'download', slide.dataset.filename || '' );
+			const full = slide.dataset.full;
+			// No resolvable full-size file: hide the link rather than let it
+			// keep pointing at the previous slide's file.
+			download.hidden = ! full;
+			if ( full ) {
+				download.href = full;
+				download.setAttribute( 'download', slide.dataset.filename || '' );
+			}
 		}
 	};
 
@@ -88,27 +119,52 @@ function setup( root ) {
 		}
 	} );
 
-	// Touch swipe on the stage.
-	let touchStartX = null;
+	// Touch swipe on the stage. Horizontal intent only, so a diagonal page
+	// scroll does not flip slides.
+	let touchStart = null;
 	stage.addEventListener( 'touchstart', ( event ) => {
-		touchStartX = event.changedTouches[ 0 ].clientX;
+		const t = event.changedTouches[ 0 ];
+		touchStart = { x: t.clientX, y: t.clientY };
 	}, { passive: true } );
 	stage.addEventListener( 'touchend', ( event ) => {
-		if ( touchStartX === null ) {
+		if ( ! touchStart ) {
 			return;
 		}
-		const delta = event.changedTouches[ 0 ].clientX - touchStartX;
-		touchStartX = null;
-		if ( Math.abs( delta ) > SWIPE_THRESHOLD ) {
-			show( delta < 0 ? current + 1 : current - 1 );
+		const t = event.changedTouches[ 0 ];
+		const dx = t.clientX - touchStart.x;
+		const dy = t.clientY - touchStart.y;
+		touchStart = null;
+		if ( Math.abs( dx ) > SWIPE_THRESHOLD && Math.abs( dx ) > Math.abs( dy ) ) {
+			show( dx < 0 ? current + 1 : current - 1 );
 		}
 	}, { passive: true } );
 
-	// Fullscreen: use the API where available, otherwise a fixed-position
-	// fallback class so the button still works everywhere.
 	const setFullscreenState = ( on ) => {
+		const wasOn = root.classList.contains( 'is-fullscreen' );
+		if ( on === wasOn ) {
+			return;
+		}
 		root.classList.toggle( 'is-fullscreen', on );
-		document.documentElement.classList.toggle( 'soli-carousel-fullscreen-open', on );
+		if ( on ) {
+			fullscreenRoot = root;
+			document.documentElement.classList.add( HTML_OPEN_CLASS );
+			// Fallback only: reparent to <body> so `position: fixed` is not
+			// trapped by an ancestor with transform/filter/contain.
+			if ( document.fullscreenElement !== root ) {
+				placeholder = document.createComment( 'soli-carousel' );
+				root.parentNode.insertBefore( placeholder, root );
+				document.body.appendChild( root );
+			}
+		} else {
+			if ( fullscreenRoot === root ) {
+				fullscreenRoot = null;
+				document.documentElement.classList.remove( HTML_OPEN_CLASS );
+			}
+			if ( placeholder && placeholder.parentNode ) {
+				placeholder.parentNode.replaceChild( root, placeholder );
+			}
+			placeholder = null;
+		}
 		if ( fullscreenButton ) {
 			fullscreenButton.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
 			const label = on ? fullscreenButton.dataset.labelExit : fullscreenButton.dataset.labelEnter;
@@ -135,20 +191,52 @@ function setup( root ) {
 		setFullscreenState( ! isOn );
 	};
 
+	// Only react to transitions that involve this instance; another carousel
+	// entering or leaving fullscreen is not our business.
 	document.addEventListener( 'fullscreenchange', () => {
-		setFullscreenState( document.fullscreenElement === root );
+		if ( document.fullscreenElement === root ) {
+			setFullscreenState( true );
+		} else if ( ! document.fullscreenElement && root.classList.contains( 'is-fullscreen' ) && ! placeholder ) {
+			setFullscreenState( false );
+		}
 	} );
 
 	root.tabIndex = root.tabIndex >= 0 ? root.tabIndex : -1;
 	show( 0 );
 }
 
-function init() {
-	document.querySelectorAll( '.soli-carousel' ).forEach( setup );
+function init( scope = document ) {
+	scope.querySelectorAll( '.soli-carousel' ).forEach( setup );
 }
 
-if ( document.readyState === 'loading' ) {
-	document.addEventListener( 'DOMContentLoaded', init );
-} else {
+// Carousels that arrive after load (AJAX, "load more", region swaps) are
+// wired up as they are inserted. setup() is idempotent via the ready flag.
+const observer = new MutationObserver( ( mutations ) => {
+	for ( const mutation of mutations ) {
+		for ( const node of mutation.addedNodes ) {
+			if ( node.nodeType !== Node.ELEMENT_NODE ) {
+				continue;
+			}
+			if ( node.classList.contains( 'soli-carousel' ) ) {
+				setup( node );
+			} else {
+				init( node );
+			}
+		}
+	}
+} );
+
+function start() {
 	init();
+	observer.observe( document.body, { childList: true, subtree: true } );
+}
+
+// Themes that swap content without touching the DOM tree observed above can
+// call this explicitly.
+window.soliCarouselInit = init;
+
+if ( document.readyState === 'loading' ) {
+	document.addEventListener( 'DOMContentLoaded', start );
+} else {
+	start();
 }

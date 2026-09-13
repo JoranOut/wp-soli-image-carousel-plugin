@@ -24,10 +24,10 @@
 	}
 
 	// When no ratio is set, the active slide sizes the track.
-	&:not([style*="--soli-carousel-ratio"]) &__track {
+	&.is-auto-height &__track {
 		display: grid;
 	}
-	&:not([style*="--soli-carousel-ratio"]) &__slide {
+	&.is-auto-height &__slide {
 		position: relative;
 		grid-area: 1 / 1;
 	}
@@ -242,6 +242,7 @@
 		z-index: 99999;
 		width: 100vw;
 		height: 100vh;
+		height: 100dvh;
 		max-width: none;
 		margin: 0;
 		padding: 0;

@@ -20,7 +20,7 @@ const readmeContent = fs.readFileSync(path.join(__dirname, 'README.md'), 'utf8')
 const pluginNameMatch = readmeContent.match(/~Plugin Name:\s*(.+?)~/);
 
 if (!pluginNameMatch) {
-    throw new Error('Could not find Plugin Name or Current Version in readme.md');
+    throw new Error('Could not find Plugin Name in README.md');
 }
 
 const pluginName = pluginNameMatch[1].trim();
@@ -81,6 +81,10 @@ archive.glob('**/*', {
         'playwright-report/**',
         'test-results/**',
         'artifacts/**',
+        'languages/*.po',
+        'languages/*.pot',
+        'CLAUDE.md',
+        'renovate.json',
     ]
 });
 
