@@ -75,7 +75,10 @@ jobs:
           # the zip reports the stable version, no site can tell a nightly from
           # a stable install, and the updater's channel split cannot engage.
           # Working tree only - nothing is committed back to the repo.
-          sed -i -E "s|^(  Version: ).*$|\1${V}|" soli-image-carousel-plugin.php
+          # The plugin header is indented with a tab here, and other repos use
+          # two spaces. Match either: a pattern that assumes one of them fails
+          # silently, and the stamp check below then fails the whole nightly.
+          sed -i -E "s|^([[:space:]]*Version:[[:space:]]*).*$|\1${V}|" soli-image-carousel-plugin.php
           sed -i -E "s|(SOLI_IMAGE_CAROUSEL__PLUGIN_VERSION', \")[^\"]*(\")|\1${V}\2|" soli-image-carousel-plugin.php
           sed -i -E "s|(~Current Version:[[:space:]]*)[^~]*(~)|\1${V}\2|" README.md
           # package.json is excluded from the zip, but keep it consistent so a
@@ -83,8 +86,16 @@ jobs:
           node -e 'const f="package.json",p=require("./"+f);p.version=process.argv[1];require("fs").writeFileSync(f,JSON.stringify(p,null,2)+"\n")' "$V"
 
           # Fail loudly rather than shipping a mis-stamped zip.
+          # The header check has to tolerate the same whitespace the sed does,
+          # so it is a regex rather than a fixed string. Escape the version
+          # first: it contains dots, which would otherwise match any character.
+          V_RE=$(printf '%s' "$V" | sed -E 's/[.[\*^$]/\\&/g')
+          if ! grep -qE "^[[:space:]]*Version:[[:space:]]*${V_RE}$" soli-image-carousel-plugin.php; then
+            echo "::error::failed to stamp the Version header into soli-image-carousel-plugin.php"
+            exit 1
+          fi
+
           for check in \
-            "soli-image-carousel-plugin.php:  Version: ${V}" \
             "soli-image-carousel-plugin.php:SOLI_IMAGE_CAROUSEL__PLUGIN_VERSION', \"${V}\"" \
             "README.md:~Current Version: ${V}~"; do
             file="${check%%:*}"; needle="${check#*:}"
