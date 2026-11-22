@@ -30,7 +30,7 @@
     "@wordpress/core-data": "^9.0.0",
     "@wordpress/data": "^11.0.0",
     "@wordpress/env": "^12.1.0",
-    "@wordpress/icons": "^20.0.0",
+    "@wordpress/icons": "^21.0.0",
     "@wordpress/scripts": "^37.0.0",
     "archiver": "^8.0.0",
     "pngjs": "^7.0.0"
