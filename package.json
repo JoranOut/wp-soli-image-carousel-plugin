@@ -5,9 +5,9 @@
   "scripts": {
     "start": "wp-scripts start --blocks-manifest",
     "build": "wp-scripts build --blocks-manifest",
-    "env:start": "wp-env start",
+    "env:start": "node bin/wp-env-start.js",
     "env:stop": "wp-env stop",
-    "env:reset": "wp-env clean all && wp-env start",
+    "env:reset": "wp-env clean all && node bin/wp-env-start.js",
     "test:e2e": "wp-scripts test-playwright",
     "test:e2e:ui": "wp-scripts test-playwright --ui",
     "i18n:make-pot": "wp-env run cli -- sh -c \"cd wp-content/plugins/wp-soli-image-carousel-plugin && php -d memory_limit=1G /usr/local/bin/wp i18n make-pot . languages/soli-image-carousel.pot --domain=soli-image-carousel --exclude=node_modules,e2e,src,test-results,package-lock.json\"",
